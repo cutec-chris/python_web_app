@@ -1,6 +1,7 @@
 import bottle,sys,threading,uuid,logging
 Sessions = []
-class SessionElement(object): pass
+class BaseSessionElement(object): pass
+SessionElement = BaseSessionElement
 def Session():
     sid = bottle.request.get_cookie("sid")
     res = None
@@ -21,6 +22,9 @@ def Session():
 _app = None
 _srv = None
 _server_thread = None
+def CustomSessionElement(se):
+    global SessionElement
+    SessionElement = se
 def run(app):
     class WSGIRefServer(bottle.ServerAdapter):
         def run(self, app): # pragma: no cover
@@ -66,5 +70,8 @@ def DoStop():
     global _app,_srv,_server_thread
     logging.warning('stopping server ...')
     _app.close()
-    _srv.srv.shutdown()
+    try:
+        _srv.srv.shutdown()
+    except:
+        pass
     _server_thread.join(.5)
