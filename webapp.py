@@ -1,4 +1,4 @@
-import bottle,sys,threading,uuid
+import bottle,sys,threading,uuid,logging
 Sessions = []
 class SessionElement(object): pass
 def Session():
@@ -8,12 +8,19 @@ def Session():
         if session.sid == sid:
             res = session
     if res == None:
+        global SessionElement
         res = SessionElement()
         Sessions.append(res)
         res.sid = str(uuid.uuid1())
     bottle.response.set_cookie('sid',res.sid)
+    try:
+        res.Enter()
+    except:
+        pass
     return res
-server_thread = None
+_app = None
+_srv = None
+_server_thread = None
 def run(app):
     class WSGIRefServer(bottle.ServerAdapter):
         def run(self, app): # pragma: no cover
@@ -38,20 +45,26 @@ def run(app):
     import wsgiref.simple_server,socketserver
     class ThreadingWSGIServer(socketserver.ThreadingMixIn, wsgiref.simple_server.WSGIServer):
         daemon_threads = True
-    srv = WSGIRefServer(server_cls=ThreadingWSGIServer,port='8123')
-    opt = dict(server=srv)
+    global _srv
+    _srv = WSGIRefServer(server_cls=ThreadingWSGIServer,port='8123')
+    opt = dict(server=_srv)
     if '--debug' in sys.argv[1:]:
         logging.warning("entering debug mode")
         opt['debug']=True
         opt['reloader']=True
-    server_thread = threading.Thread(target=app.run, kwargs=opt)
-    server_thread.start()
+    global _server_thread
+    _server_thread = threading.Thread(target=app.run, kwargs=opt)
+    _server_thread.start()
+    global _app
+    _app = app
 def DoTick():
-    if server_thread is not None and server_thread.is_alive():
-        server_thread.join(.5)
-    return server_thread == None or server_thread.is_alive()
+    global _server_thread
+    if _server_thread is not None and _server_thread.is_alive():
+        _server_thread.join(.5)
+    return _server_thread == None or _server_thread.is_alive()
 def DoStop():
+    global _app,_srv,_server_thread
     logging.warning('stopping server ...')
-    app.close()
-    srv.srv.shutdown()
-    server_thread.join(.5)
+    _app.close()
+    _srv.srv.shutdown()
+    _server_thread.join(.5)
