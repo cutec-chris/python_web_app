@@ -1,5 +1,8 @@
 import bottle,sys,threading,uuid,logging
 Sessions = []
+_app = None
+_srv = None
+_server_thread = None
 class BaseSessionElement(object): pass
 SessionElement = BaseSessionElement
 def Session():
@@ -19,9 +22,8 @@ def Session():
     except:
         pass
     return res
-_app = None
-_srv = None
-_server_thread = None
+def Server():
+    return _srv
 def CustomSessionElement(se):
     global SessionElement
     SessionElement = se
