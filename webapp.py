@@ -19,7 +19,7 @@ def Session():
     bottle.response.set_cookie('sid',res.sid)
     try:
         res.Enter()
-    except:
+    except BaseException as e:
         pass
     return res
 def Server():
