@@ -27,7 +27,9 @@ def Server():
 def CustomSessionElement(se):
     global SessionElement
     SessionElement = se
-def run(app):
+def run(app=None,**kwargs):
+    if app == None:
+        app = bottle.default_app()
     import wsgiref.simple_server,socketserver
     class ThreadingWSGIServer(socketserver.ThreadingMixIn, wsgiref.simple_server.WSGIServer):
         daemon_threads = True
@@ -58,6 +60,10 @@ def run(app):
         logging.warning("entering debug mode")
         opt['debug']=True
         opt['reloader']=True
+    if 'reloader' in kwargs:
+        opt['reloader'] = kwargs.get('reloader',)
+    if 'debug' in kwargs:
+        opt['debug'] = kwargs.get('debug',opt['debug'])
     global _server_thread
     _server_thread = threading.Thread(target=app.run, kwargs=opt, daemon=True)
     _server_thread.start()
