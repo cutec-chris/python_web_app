@@ -83,3 +83,11 @@ def DoStop():
     except:
         pass
     _server_thread.join(.5)
+def redirect(location, code=303):
+    try:
+        bottle.redirect(location, code)
+    except bottle.HTTPResponse as res:
+        return res
+    # Alternative
+    # response.status = code
+    # response.set_header('Location', location)
