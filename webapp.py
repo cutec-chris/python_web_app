@@ -88,6 +88,3 @@ def redirect(location, code=303):
         bottle.redirect(location, code)
     except bottle.HTTPResponse as res:
         return res
-    # Alternative
-    # response.status = code
-    # response.set_header('Location', location)
