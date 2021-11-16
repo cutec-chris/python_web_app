@@ -88,3 +88,18 @@ def redirect(location, code=303):
         bottle.redirect(location, code)
     except bottle.HTTPResponse as res:
         return res
+def ColoredOutput(log_level):
+    def set_color(level, code):
+        level_fmt = "\033[1;" + str(code) + "m%s\033[1;0m" 
+        logging.addLevelName( level, level_fmt % logging.getLevelName(level) )
+    std_stream = sys.stdout
+    isatty = getattr(std_stream, 'isatty', None)
+    if isatty and isatty():
+        levels = [logging.DEBUG, logging.CRITICAL, logging.WARNING, logging.ERROR]
+        set_color(logging.WARNING, 34)
+        set_color(logging.ERROR, 31)
+        set_color(logging.CRITICAL, 45)
+        for idx, level in enumerate(levels):
+            set_color(level, 30 + idx )
+    logging.basicConfig(stream=std_stream, level=log_level)
+    logging.root.setLevel(log_level)    
