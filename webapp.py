@@ -5,18 +5,24 @@ _srv = None
 _server_thread = None
 class BaseSessionElement(object): pass
 SessionElement = BaseSessionElement
-def Session():
-    sid = bottle.request.get_cookie("sid")
+def Session(sid=None):
+    try:
+        if sid is None:
+            sid = bottle.request.params['sid']
+    except: pass
+    #if sid is None:
+    #    sid = bottle.request.get_cookie("sid")
     res = None
     for session in Sessions:
         if session.sid == sid:
             res = session
+            break
     if res == None:
         global SessionElement
         res = SessionElement()
         Sessions.append(res)
         res.sid = str(uuid.uuid1())
-    bottle.response.set_cookie('sid',res.sid)
+    #bottle.response.set_cookie('sid',res.sid)
     try:
         res.Enter()
     except BaseException as e:
@@ -39,12 +45,17 @@ def run(app=None,**kwargs):
             from wsgiref.simple_server import make_server
             import socket
             class FixedHandler(WSGIRequestHandler):
-                server_version = 'test/0.0.1'
+                server_version = 'Webapp/0.0.2'
                 def address_string(self): # Prevent reverse DNS lookups please.
                     return self.client_address[0]
                 def log_request(*args, **kw):
                     if not self.quiet:
                         return WSGIRequestHandler.log_request(*args, **kw)
+                def get_environ(self):
+                    env = super().get_environ()
+                    if self.client_address[1]:
+                        env['REMOTE_PORT'] = self.client_address[1]
+                    return env
             handler_cls = self.options.get('handler_class', FixedHandler)
             server_cls  = self.options.get('server_class', ThreadingWSGIServer)
             if ':' in self.host: # Fix wsgiref for IPv6 addresses.
