@@ -99,10 +99,10 @@ def redirect(location, code=303):
         bottle.redirect(location, code)
     except bottle.HTTPResponse as res:
         return res
-def ColoredOutput(log_level):
-    def set_color(level, code):
+def ColoredOutput(level):
+    def set_color(alevel, code):
         level_fmt = "\033[1;" + str(code) + "m%s\033[1;0m" 
-        logging.addLevelName( level, level_fmt % logging.getLevelName(level) )
+        logging.addLevelName( alevel, level_fmt % logging.getLevelName(alevel) )
     std_stream = sys.stdout
     isatty = getattr(std_stream, 'isatty', None)
     if isatty and isatty():
@@ -110,7 +110,7 @@ def ColoredOutput(log_level):
         set_color(logging.WARNING, 34)
         set_color(logging.ERROR, 31)
         set_color(logging.CRITICAL, 45)
-        for idx, level in enumerate(levels):
-            set_color(level, 30 + idx )
-    logging.basicConfig(stream=std_stream, level=log_level)
-    logging.root.setLevel(log_level)    
+        for idx, blevel in enumerate(levels):
+            set_color(blevel, 30 + idx )
+    logging.basicConfig(stream=std_stream, level=level)
+    logging.root.setLevel(level)    
