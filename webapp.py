@@ -17,11 +17,22 @@ def Session(sid=None):
         if session.sid == sid:
             res = session
             break
+    #trial to fingerprint browser
+    remote_addr = bottle.request.environ.get('HTTP_X_FORWARDED_FOR') or bottle.request.environ.get('REMOTE_ADDR')
+    if bottle.request.environ.get('REMOTE_PORT'):
+        remote_addr += ':'+bottle.request.environ.get('REMOTE_PORT')
+    remote_addr += '///'+bottle.request.headers['User-Agent']
+    if res == None: 
+        for session in Sessions:
+            if session.remote_addr == remote_addr:
+                res = session
+                break
     if res == None:
         global SessionElement
         res = SessionElement()
         Sessions.append(res)
         res.sid = str(uuid.uuid1())
+        res.remote_addr = remote_addr
     #bottle.response.set_cookie('sid',res.sid)
     try:
         res.Enter()
