@@ -98,7 +98,9 @@ def redirect(location, code=303):
     try:
         bottle.redirect(location, code)
     except bottle.HTTPResponse as res:
-        return res
+        bottle.response.status = code
+        bottle.response.set_header('Location', location)
+        return bottle.response
 def ColoredOutput(level):
     def set_color(alevel, code):
         level_fmt = "\033[1;" + str(code) + "m%s\033[1;0m" 
