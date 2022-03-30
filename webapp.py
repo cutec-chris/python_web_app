@@ -20,7 +20,7 @@ def Session(sid=None):
     #trial to fingerprint browser
     remote_addr = bottle.request.environ.get('HTTP_X_FORWARDED_FOR') or bottle.request.environ.get('REMOTE_ADDR')
     if bottle.request.environ.get('REMOTE_PORT'):
-        remote_addr += ':'+bottle.request.environ.get('REMOTE_PORT')
+        remote_addr += ':'+str(bottle.request.environ.get('REMOTE_PORT'))
     remote_addr += '///'+bottle.request.headers['User-Agent']
     if res == None: 
         for session in Sessions:
