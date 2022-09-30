@@ -13,8 +13,8 @@ def Session(sid=None):
     #if sid is None:
     #    sid = bottle.request.get_cookie("sid")
     res = None
-    for session in Sessions:
-        if session.sid == sid or sid == 'first':
+    for session in reversed(Sessions):
+        if session.sid == sid or (sid == 'first'):
             res = session
             break
     #trial to fingerprint browser
@@ -31,7 +31,7 @@ def Session(sid=None):
         global SessionElement
         res = SessionElement()
         Sessions.append(res)
-        res.sid = str(uuid.uuid1())
+        res.sid = str(uuid.uuid4())
         res.remote_addr = remote_addr
     #bottle.response.set_cookie('sid',res.sid)
     try:
