@@ -14,7 +14,7 @@ def Session(sid=None):
     #    sid = bottle.request.get_cookie("sid")
     res = None
     for session in reversed(Sessions):
-        if session.sid == sid or (sid == 'first'):
+        if session.sid == sid or ((sid == 'first') and (hasattr(session,'rtest'))):
             res = session
             break
     #trial to fingerprint browser
