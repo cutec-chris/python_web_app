@@ -61,7 +61,9 @@ def run(app=None,**kwargs):
                     return self.client_address[0]
                 def log_request(*args, **kw):
                     if not self.quiet:
-                        return WSGIRequestHandler.log_request(*args, **kw)
+                        try:
+                            return WSGIRequestHandler.log_request(*args, **kw)
+                        except: pass
                 def get_environ(self):
                     env = super().get_environ()
                     if self.client_address[1]:
